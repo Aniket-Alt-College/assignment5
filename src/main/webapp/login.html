@@ -1,119 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login Page</title>
+    <title>Login - Servlet Assignment</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-color: #f5f5f5;
         }
-        
         .login-container {
             background-color: white;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-        
         h2 {
             text-align: center;
-            color: #333;
+            margin-bottom: 20px;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
         input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+            padding: 10px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
             box-sizing: border-box;
+            border-radius: 4px;
         }
-        
-        .login-btn {
-            width: 100%;
+        button {
             background-color: #4CAF50;
             color: white;
-            padding: 10px;
+            padding: 10px 15px;
+            margin: 8px 0;
             border: none;
-            border-radius: 3px;
             cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
         }
-        
-        .login-btn:hover {
-            background-color: #45a049;
+        button:hover {
+            opacity: 0.8;
         }
-        
         .error-message {
-            color: red;
+            color: #e74c3c;
             text-align: center;
             margin-bottom: 15px;
-        }
-        
-        .home-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .home-link a {
-            color: #666;
-            text-decoration: none;
-        }
-        
-        .home-link a:hover {
-            text-decoration: underline;
+            display: none;
         }
     </style>
+    <script>
+        // Show error message if error parameter exists in URL
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            if (error) {
+                const errorElement = document.getElementById('error-message');
+                errorElement.style.display = 'block';
+                if (error === 'invalid') {
+                    errorElement.textContent = 'Invalid username or password. Please try again.';
+                }
+            }
+        };
+    </script>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        
-        <!-- Error message placeholder - this will be populated by LoginServlet if there's an error -->
-        <div class="error-message" id="errorMsg"></div>
-        
-        <form action="login" method="post">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            
-            <button type="submit" class="login-btn">Login</button>
-        </form>
-        
-        <div class="home-link">
-            <a href="index.html">Back to Home</a>
+<div class="login-container">
+    <h2>Login</h2>
+    <div id="error-message" class="error-message"></div>
+    <form action="login" method="POST">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
         </div>
-    </div>
-    
-    <script>
-        // Check if there's an error parameter in the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        
-        if (error === 'true') {
-            document.getElementById('errorMsg').innerHTML = 'Invalid username or password. Please try again.';
-        }
-    </script>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 15px; font-size: 0.8em;">
+        For testing, use:<br>
+        Username: admin<br>
+        Password: password
+    </p>
+</div>
 </body>
 </html>

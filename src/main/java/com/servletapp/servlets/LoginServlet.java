@@ -1,97 +1,104 @@
 package com.servletapp.servlets;
 
-import com.servletapp.util.DatabaseUtil;
-import javax.servlet.RequestDispatcher;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
+
+import com.servletapp.util.DatabaseUtil;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-    
-    private com.servletapp.servlets.DatabaseUtil dbUtil;
-    
+
     @Override
     public void init() throws ServletException {
-        super.init();
-        // Initialize database utility
-        dbUtil = new DatabaseUtil();
-    }
-    
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        
-        // Check if the user is already logged in
-        HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("loggedInUser") != null) {
-            // User is already logged in, redirect to welcome page
-            response.sendRedirect("welcome");
-            return;
+        try {
+            // Optional: Get database connection parameters from ServletConfig
+            if (getServletConfig().getInitParameter("dbUrl") != null) {
+                String dbUrl = getServletConfig().getInitParameter("dbUrl");
+                String dbUser = getServletConfig().getInitParameter("dbUser");
+                String dbPassword = getServletConfig().getInitParameter("dbPassword");
+
+                DatabaseUtil.configureDatabaseConnection(dbUrl, dbUser, dbPassword);
+            }
+
+            // Initialize database
+            // Comment out this line if you want to handle database setup separately
+            // DatabaseUtil.initializeDatabase();
+
+        } catch (Exception e) {
+            throw new ServletException("Failed to initialize database", e);
         }
-        
-        // Check if there's an error message
-        String error = request.getParameter("error");
-        if (error != null) {
-            request.setAttribute("errorMessage", "Invalid username or password. Please try again.");
-        }
-        
-        // Forward to login.html page
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/login.html");
-        dispatcher.forward(request, response);
     }
-    
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Get form parameters
+
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        
-        // Simple validation
-        if (username == null || username.trim().isEmpty() || 
-            password == null || password.trim().isEmpty()) {
-            
-            // Invalid input, redirect back to login page with error
-            response.sendRedirect("login?error=true");
+
+        // For demo purposes - hardcoded admin login
+        // This lets you test without a database connection
+        if ("admin".equals(username) && "password".equals(password)) {
+            // Create a session for this user
+            HttpSession session = request.getSession();
+            session.setAttribute("user", username);
+
+            // Redirect to welcome page after successful login
+            response.sendRedirect(request.getContextPath() + "/welcome");
             return;
         }
-        
-        // Authenticate user (in a real application, this would use a database)
-        boolean isValid = authenticateUser(username, password);
-        
-        if (isValid) {
-            // Set user in session
-            HttpSession session = request.getSession();
-            session.setAttribute("loggedInUser", username);
-            
-            // Forward to welcome servlet
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/welcome");
-            request.setAttribute("welcomeMessage", "Welcome, " + username + "! You have successfully logged in.");
-            dispatcher.forward(request, response);
-        } else {
-            // Authentication failed, redirect back to login page with error
-            response.sendRedirect("login?error=true");
+
+        // Database authentication - only attempt if hardcoded login fails
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DatabaseUtil.getConnection();
+
+            // Query to validate user credentials
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                // Valid credentials, create session
+                HttpSession session = request.getSession();
+                session.setAttribute("user", username);
+                session.setAttribute("fullName", rs.getString("full_name"));
+
+                // Redirect to welcome page after successful login
+                response.sendRedirect(request.getContextPath() + "/welcome");
+            } else {
+                // Invalid credentials, redirect back to login with error
+                response.sendRedirect(request.getContextPath() + "/login.html?error=invalid");
+            }
+
+        } catch (SQLException e) {
+            // Log the error and redirect to error page
+            getServletContext().log("Database error during login", e);
+            response.sendRedirect(request.getContextPath() + "/error.html");
+        } finally {
+            DatabaseUtil.closeResources(conn, pstmt, rs);
         }
     }
-    
-    private boolean authenticateUser(String username, String password) {
-        // Simple authentication logic for demo purposes
-        // In an advanced implementation, this would use DatabaseUtil to query the database
-        
-        // For demonstration, hardcoded check
-        if (username.equals("admin") && password.equals("password123")) {
-            return true;
-        }
-        
-        // If we're using the database (advanced implementation)
-        // return dbUtil.validateUser(username, password);
-        
-        return false;
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Redirect GET requests to the login page
+        response.sendRedirect(request.getContextPath() + "/login.html");
     }
 }

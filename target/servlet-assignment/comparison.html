@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGI vs Servlets Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .comparison-section {
+            margin-bottom: 30px;
+        }
+        .example-code {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .nav-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .nav-buttons a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 10px;
+        }
+        .nav-buttons a:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>CGI vs Servlets: A Comprehensive Comparison</h1>
+    
+    <div class="comparison-section">
+        <h2>What is CGI?</h2>
+        <p>
+            <strong>Common Gateway Interface (CGI)</strong> is a standard protocol that defines how web servers can execute programs (known as CGI scripts) to generate dynamic web content. When a client sends a request to a CGI program, the web server creates a new process for each request, loads the CGI program into memory, executes it, and then destroys the process after sending the response.
+        </p>
+        <p>
+            CGI scripts can be written in various languages such as Perl, Python, C, C++, etc. They were one of the earliest methods for creating dynamic web pages.
+        </p>
+    </div>
+    
+    <div class="comparison-section">
+        <h2>What are Java Servlets?</h2>
+        <p>
+            <strong>Java Servlets</strong> are server-side components that run within a web server or application server to handle requests and generate responses. Unlike CGI, servlets run within the Java Virtual Machine (JVM) of the web server. Once loaded, servlets remain in memory and can handle multiple requests concurrently without creating new processes.
+        </p>
+        <p>
+            Servlets are platform-independent Java classes that conform to the Java Servlet API, extending the capabilities of web servers to host applications that are accessed through the request-response programming model.
+        </p>
+    </div>
+    
+    <div class="comparison-section">
+        <h2>Advantages of Servlets over CGI</h2>
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>CGI</th>
+                <th>Servlets</th>
+            </tr>
+            <tr>
+                <td><strong>Performance</strong></td>
+                <td>Creates a new process for each request, which is resource-intensive and slower</td>
+                <td>Runs as threads within the web server's process, providing better performance</td>
+            </tr>
+            <tr>
+                <td><strong>Memory Usage</strong></td>
+                <td>Loads the entire program into memory for each request</td>
+                <td>Loaded once and stays in memory, handling multiple requests</td>
+            </tr>
+            <tr>
+                <td><strong>State Management</strong></td>
+                <td>Doesn't maintain state between requests; requires external mechanisms</td>
+                <td>Can maintain state using session objects, ServletContext, and other built-in mechanisms</td>
+            </tr>
+            <tr>
+                <td><strong>Platform Independence</strong></td>
+                <td>Depends on the programming language used</td>
+                <td>Platform-independent due to Java's "write once, run anywhere" nature</td>
+            </tr>
+            <tr>
+                <td><strong>Database Connectivity</strong></td>
+                <td>Must establish a new database connection for each request</td>
+                <td>Can maintain connection pools for efficient database access</td>
+            </tr>
+            <tr>
+                <td><strong>Security</strong></td>
+                <td>Limited security features; depends on how the script is written</td>
+                <td>Benefits from Java's security manager and built-in security features</td>
+            </tr>
+            <tr>
+                <td><strong>Multithreading</strong></td>
+                <td>Limited or complex multithreading capabilities</td>
+                <td>Built-in support for multithreading, allowing concurrent request handling</td>
+            </tr>
+            <tr>
+                <td><strong>Error Handling</strong></td>
+                <td>Basic error handling; often sends errors directly to clients</td>
+                <td>Robust exception handling mechanisms with customizable error pages</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="comparison-section">
+        <h2>Code Comparison: CGI vs Servlet</h2>
+        
+        <h3>Sample CGI Script (Python)</h3>
+        <div class="example-code">
+#!/usr/bin/env python
+import cgi
+import cgitb
+cgitb.enable()
+
+# Print HTTP headers
+print("Content-Type: text/html\n\n")
+
+# Process form data
+form = cgi.FieldStorage()
+name = form.getvalue('name', 'Guest')
+
+# Generate HTML response
+print("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CGI Example</title>
+</head>
+<body>
+    <h1>Hello, {}!</h1>
+    <p>This response was generated by a CGI script.</p>
+</body>
+</html>
+""".format(name))
+        </div>
+        
+        <h3>Equivalent Java Servlet</h3>
+        <div class="example-code">
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet("/hello")
+public class HelloServlet extends HttpServlet {
+    
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        // Get parameter
+        String name = request.getParameter("name");
+        if (name == null || name.isEmpty()) {
+            name = "Guest";
+        }
+        
+        // Set content type
+        response.setContentType("text/html");
+        
+        // Get writer
+        PrintWriter out = response.getWriter();
+        
+        // Generate HTML response
+        out.println("<!DOCTYPE html>");
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>Servlet Example</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<h1>Hello, " + name + "!</h1>");
+        out.println("<p>This response was generated by a Java Servlet.</p>");
+        out.println("</body>");
+        out.println("</html>");
+    }
+}
+        </div>
+    </div>
+    
+    <div class="comparison-section">
+        <h2>Performance Considerations</h2>
+        <p>
+            The performance difference between CGI and Servlets becomes especially noticeable under high load:
+        </p>
+        <ul>
+            <li><strong>CGI:</strong> Performance degrades quickly as each request requires a new process, consuming system resources.</li>
+            <li><strong>Servlets:</strong> Can handle many concurrent requests efficiently using a thread pool, maintaining a relatively stable response time even under increased load.</li>
+        </ul>
+        <p>
+            For high-traffic websites, the servlet approach can handle significantly more requests per second while using fewer server resources compared to CGI.
+        </p>
+    </div>
+    
+    <div class="comparison-section">
+        <h2>Evolution of Web Technologies</h2>
+        <p>
+            CGI was one of the earliest technologies for creating dynamic web content, but it has largely been replaced by more efficient technologies like servlets, which in turn have evolved into frameworks like JavaServer Pages (JSP), JavaServer Faces (JSF), Spring MVC, and others.
+        </p>
+        <p>
+            While CGI is still used in some legacy systems and simple applications, most modern web applications use more advanced frameworks that build upon servlet technology or similar concepts in other languages.
+        </p>
+    </div>
+    
+    <p>
+        This comparison highlights why Java Servlets have become a preferred choice for developing robust, high-performance web applications, particularly those requiring state management, security, and efficient resource utilization.
+    </p>
+    
+    <div class="nav-buttons">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login Demo</a>
+        <a href="session-demo.jsp">Session Demo</a>
+    </div>
+</body>
+</html>

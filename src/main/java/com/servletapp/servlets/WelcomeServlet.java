@@ -1,91 +1,61 @@
 package com.servletapp.servlets;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 @WebServlet("/welcome")
 public class WelcomeServlet extends HttpServlet {
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-        
-        // Check if the user is logged in
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("loggedInUser") == null) {
-            // User is not logged in, redirect to login page
-            response.sendRedirect("login");
-            return;
-        }
-        
-        processRequest(request, response);
-    }
-    
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        
-        // Process POST requests the same as GET requests
-        processRequest(request, response);
-    }
-    
-    private void processRequest(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        
-        // Get the logged-in user from session
+        response.setContentType("text/html;charset=UTF-8");
+
+        // Get the current session or return null if no session exists
         HttpSession session = request.getSession(false);
-        String username = (String) session.getAttribute("loggedInUser");
-        
-        // Get welcome message from request attribute (if forwarded from LoginServlet)
-        String welcomeMessage = (String) request.getAttribute("welcomeMessage");
-        if (welcomeMessage == null) {
-            welcomeMessage = "Welcome back, " + username + "!";
+
+        String user = (session != null) ? (String) session.getAttribute("user") : null;
+
+        try (PrintWriter out = response.getWriter()) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Welcome Page</title>");
+            out.println("<style>");
+            out.println("body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }");
+            out.println(".container { max-width: 800px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }");
+            out.println("h1 { color: #333; }");
+            out.println("nav { margin-bottom: 20px; }");
+            out.println("nav a { margin-right: 15px; text-decoration: none; color: #0066cc; }");
+            out.println("</style>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<div class='container'>");
+            out.println("<h1>Welcome to Servlet Assignment</h1>");
+
+            if (user != null) {
+                out.println("<p>Hello, <strong>" + user + "</strong>! You are logged in.</p>");
+                out.println("<nav>");
+                out.println("<a href='" + request.getContextPath() + "/profile'>View Profile</a>");
+                out.println("<a href='" + request.getContextPath() + "/settings'>Settings</a>");
+                out.println("<a href='" + request.getContextPath() + "/logout'>Logout</a>");
+                out.println("</nav>");
+            } else {
+                out.println("<p>You are not logged in. Please <a href='" + request.getContextPath() + "/login.html'>login</a> to continue.</p>");
+            }
+
+            out.println("<p>This page is protected by <code>AuthenticationFilter</code>.</p>");
+            out.println("<p>Every request to this application is logged by <code>LoggingFilter</code>.</p>");
+
+            out.println("</div>");
+            out.println("</body>");
+            out.println("</html>");
         }
-        
-        out.println("<!DOCTYPE html>");
-        out.println("<html>");
-        out.println("<head>");
-        out.println("<title>Welcome Page</title>");
-        out.println("<style>");
-        out.println("body { font-family: Arial, sans-serif; margin: 20px; }");
-        out.println(".welcome-box { background-color: #f0f8ff; border: 1px solid #b0c4de; padding: 20px; border-radius: 5px; }");
-        out.println(".logout-btn { background-color: #f44336; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }");
-        out.println("</style>");
-        out.println("</head>");
-        out.println("<body>");
-        
-        out.println("<div class='welcome-box'>");
-        out.println("<h1>" + welcomeMessage + "</h1>");
-        out.println("<p>You are now in a protected area that requires authentication.</p>");
-        out.println("<p>Session ID: " + session.getId() + "</p>");
-        out.println("<p>Created: " + new java.util.Date(session.getCreationTime()) + "</p>");
-        out.println("<p>Last Accessed: " + new java.util.Date(session.getLastAccessedTime()) + "</p>");
-        out.println("</div>");
-        
-        out.println("<h2>Protected Actions:</h2>");
-        out.println("<ul>");
-        out.println("<li><a href='profile'>View Profile</a></li>");
-        out.println("<li><a href='settings'>Account Settings</a></li>");
-        out.println("</ul>");
-        
-        out.println("<form action='logout' method='post'>");
-        out.println("<input type='submit' class='logout-btn' value='Logout'>");
-        out.println("</form>");
-        
-        out.println("<p><a href='index.html'>Back to Home</a></p>");
-        
-        out.println("</body>");
-        out.println("</html>");
     }
 }

@@ -39,15 +39,15 @@
         <url-pattern>/config</url-pattern>
     </servlet-mapping>
     
-    <!-- Logout Servlet Configuration -->
-    <servlet>
-        <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>com.servletapp.servlets.LogoutServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LogoutServlet</servlet-name>
-        <url-pattern>/logout</url-pattern>
-    </servlet-mapping>
+<!--    &lt;!&ndash; Logout Servlet Configuration &ndash;&gt;-->
+<!--    <servlet>-->
+<!--        <servlet-name>LogoutServlet</servlet-name>-->
+<!--        <servlet-class>com.servletapp.servlets.LogoutServlet</servlet-class>-->
+<!--    </servlet>-->
+<!--    <servlet-mapping>-->
+<!--        <servlet-name>LogoutServlet</servlet-name>-->
+<!--        <url-pattern>/logout</url-pattern>-->
+<!--    </servlet-mapping>-->
     
     <!-- Filter Mappings (if not using annotations) -->
     <filter>
