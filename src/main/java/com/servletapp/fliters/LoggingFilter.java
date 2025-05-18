@@ -1,4 +1,4 @@
-package com.servletapp.filters;
+package com.servletapp.fliters;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;

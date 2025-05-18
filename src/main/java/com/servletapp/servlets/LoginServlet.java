@@ -13,7 +13,7 @@ import java.io.IOException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     
-    private DatabaseUtil dbUtil;
+    private com.servletapp.servlets.DatabaseUtil dbUtil;
     
     @Override
     public void init() throws ServletException {

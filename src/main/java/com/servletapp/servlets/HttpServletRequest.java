@@ -1,4 +1,4 @@
-package main.java.com.servletapp.servlets;
+package com.servletapp.servlets;
 
 public class HttpServletRequest {
 
